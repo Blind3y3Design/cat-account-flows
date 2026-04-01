@@ -1,0 +1,323 @@
+<script lang="ts">
+	import Drawer from '$lib/components/Drawer.svelte';
+	import { storeLocationStore, selectedStoreId, stores } from '$lib/stores/store-location';
+	import type { StoreLocation } from '$lib/types/store';
+
+	interface SelectStoreDrawerProps {
+		open: boolean;
+		onclose?: () => void;
+		onselect?: (store: StoreLocation) => void;
+	}
+
+	let { open = $bindable(), onclose, onselect }: SelectStoreDrawerProps = $props();
+
+	let searchQuery = $state('');
+	let filterOpen = $state(false);
+
+	// Get selected store from store-location store
+	let currentSelectedId = $derived($selectedStoreId);
+	let allStores = $derived($stores);
+
+	let filteredStores = $derived(
+		searchQuery ? storeLocationStore.filterStores(searchQuery) : allStores
+	);
+
+	function handleSelectStore(store: StoreLocation) {
+		// Use the store-location store to handle selection
+		storeLocationStore.selectStore(store.id);
+
+		if (onselect) {
+			onselect(store);
+		}
+
+		open = false;
+	}
+
+	function handleMapView() {
+		// In a real app, this would open a map view
+		alert('Map view would open here');
+	}
+
+	function handleFilter() {
+		filterOpen = !filterOpen;
+	}
+
+	// Initialize selected store from user when drawer opens
+	$effect(() => {
+		if (open) {
+			storeLocationStore.initFromUser();
+		}
+	});
+</script>
+
+<Drawer bind:open title="Select Store" {onclose}>
+	<div class="store-content">
+		<!-- Search Input -->
+		<div class="search-section">
+			<input
+				type="text"
+				class="search-input"
+				bind:value={searchQuery}
+				placeholder="Enter city, state, address, or zip code"
+			/>
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="action-buttons">
+			<button class="map-button" type="button" onclick={handleMapView}>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+					<line x1="8" y1="2" x2="8" y2="18"></line>
+					<line x1="16" y1="6" x2="16" y2="22"></line>
+				</svg>
+				Map View
+			</button>
+			<button class="filter-button" type="button" onclick={handleFilter}>
+				<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+					<path
+						fill-rule="evenodd"
+						clip-rule="evenodd"
+						d="M3.49126 7.4996C3.49126 7.22345 3.71512 6.9996 3.99126 6.9996H12.009C12.2852 6.9996 12.509 7.22345 12.509 7.4996C12.509 7.77574 12.2852 7.9996 12.009 7.9996H3.99126C3.71512 7.9996 3.49126 7.77574 3.49126 7.4996Z"
+						fill="currentColor"
+					/>
+					<path
+						fill-rule="evenodd"
+						clip-rule="evenodd"
+						d="M1.23682 3.74219C1.23682 3.46605 1.46067 3.24219 1.73682 3.24219L14.2635 3.24219C14.5396 3.24219 14.7635 3.46605 14.7635 3.74219C14.7635 4.01833 14.5396 4.24219 14.2635 4.24219L1.73682 4.24219C1.46067 4.24219 1.23682 4.01833 1.23682 3.74219Z"
+						fill="currentColor"
+					/>
+					<path
+						fill-rule="evenodd"
+						clip-rule="evenodd"
+						d="M6.49719 11.257C6.49719 10.9809 6.72104 10.757 6.99719 10.757H9.00311C9.27925 10.757 9.50311 10.9809 9.50311 11.257C9.50311 11.5331 9.27925 11.757 9.00311 11.757H6.99719C6.72104 11.757 6.49719 11.5331 6.49719 11.257Z"
+						fill="currentColor"
+					/>
+				</svg>
+				Filter
+			</button>
+		</div>
+
+		<!-- Store List -->
+		<div class="store-list">
+			{#each filteredStores as store (store.id)}
+				<div class="store-card" class:selected={currentSelectedId === store.id}>
+					<div class="store-info">
+						<h3 class="store-name">{store.name}</h3>
+						<p class="store-address">
+							{store.address}, {store.city}, {store.state}
+						</p>
+					</div>
+					<div class="store-details">
+						<div class="distance-hours">
+							<p class="store-distance">{store.distance} mi away</p>
+							<p class="store-hours"><span class="store-open-status">Open</span> | Closes 5pm</p>
+						</div>
+						{#if currentSelectedId === store.id}
+							<button class="select-button selected" type="button" inert>
+								<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+									<path
+										d="M8.55918 1.38289L10.3352 4.96844C10.3756 5.05944 10.4391 5.13827 10.5195 5.19707C10.5998 5.25586 10.6942 5.29257 10.7932 5.30353L14.7138 5.88437C14.8273 5.89896 14.9344 5.94555 15.0224 6.01869C15.1104 6.09184 15.1758 6.18852 15.211 6.29745C15.2461 6.40637 15.2495 6.52305 15.2208 6.63385C15.1921 6.74465 15.1325 6.84499 15.0489 6.92317L12.2229 9.72682C12.1508 9.79421 12.0967 9.87855 12.0654 9.97219C12.0342 10.0658 12.0269 10.1658 12.0442 10.263L12.7256 14.206C12.7453 14.3193 12.7328 14.4358 12.6896 14.5424C12.6463 14.6489 12.574 14.7412 12.4809 14.8087C12.3878 14.8762 12.2776 14.9162 12.1629 14.9242C12.0482 14.9322 11.9335 14.9078 11.832 14.8538L8.30227 12.9884C8.21189 12.9441 8.11254 12.921 8.01185 12.921C7.91117 12.921 7.81182 12.9441 7.72144 12.9884L4.19174 14.8538C4.0902 14.9078 3.97553 14.9322 3.86081 14.9242C3.74608 14.9162 3.6359 14.8762 3.54279 14.8087C3.44968 14.7412 3.37739 14.6489 3.33414 14.5424C3.29089 14.4358 3.27842 14.3193 3.29815 14.206L3.97952 10.2183C3.99678 10.1211 3.98948 10.0212 3.95827 9.92751C3.92705 9.83387 3.87292 9.74953 3.8008 9.68214L0.941298 6.92317C0.8567 6.84285 0.797206 6.73973 0.770023 6.62629C0.74284 6.51285 0.749135 6.39396 0.788144 6.28403C0.827154 6.17409 0.897204 6.07783 0.98981 6.00689C1.08242 5.93596 1.1936 5.8934 1.30991 5.88437L5.23055 5.30353C5.32951 5.29257 5.42387 5.25586 5.50422 5.19707C5.58458 5.13827 5.64812 5.05944 5.68851 4.96844L7.46453 1.38289C7.51289 1.27846 7.59012 1.19005 7.68711 1.12809C7.78409 1.06613 7.89677 1.0332 8.01185 1.0332C8.12694 1.0332 8.23962 1.06613 8.3366 1.12809C8.43359 1.19005 8.51082 1.27846 8.55918 1.38289Z"
+										fill="currentColor"
+									/>
+								</svg>
+
+								My Store
+							</button>
+						{:else}
+							<button class="select-button" type="button" onclick={() => handleSelectStore(store)}>
+								<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+									<path
+										fill-rule="evenodd"
+										clip-rule="evenodd"
+										d="M8.01423 2.0332C8.00249 2.0332 7.99099 2.03656 7.9811 2.04288C7.9712 2.04921 7.96332 2.05823 7.95839 2.06888L7.95273 2.08068L6.30322 5.41083C6.22997 5.5707 6.11698 5.70923 5.97495 5.81316C5.8325 5.91739 5.6657 5.98324 5.49059 6.00448L1.84818 6.5441C1.83671 6.5458 1.82518 6.5471 1.81361 6.548C1.80175 6.54892 1.7904 6.55326 1.78095 6.5605C1.77151 6.56774 1.76436 6.57756 1.76038 6.58877C1.7564 6.59999 1.75576 6.61212 1.75853 6.62369C1.7613 6.63527 1.76737 6.64579 1.776 6.65398L1.77893 6.65676L4.43862 9.22297C4.56497 9.34208 4.65987 9.49065 4.7148 9.65544C4.77002 9.82111 4.7831 9.99792 4.75285 10.1699L4.75253 10.1717L4.11876 13.8809L4.1185 13.8824C4.11619 13.8957 4.11765 13.9093 4.12271 13.9218C4.12778 13.9343 4.13624 13.9451 4.14714 13.953C4.15805 13.9609 4.17095 13.9656 4.18438 13.9665C4.19781 13.9675 4.21124 13.9646 4.22313 13.9583L4.22419 13.9577L7.51024 12.2211C7.51463 12.2188 7.51906 12.2165 7.52352 12.2143C7.67624 12.1394 7.8441 12.1004 8.01423 12.1004C8.18436 12.1004 8.35222 12.1394 8.50494 12.2143C8.5094 12.2165 8.51383 12.2188 8.51822 12.2211L11.8053 13.9583C11.8172 13.9646 11.8306 13.9675 11.8441 13.9665C11.8575 13.9656 11.8704 13.9609 11.8813 13.953C11.8922 13.9451 11.9007 13.9343 11.9058 13.9218C11.9108 13.9093 11.9123 13.8957 11.91 13.8824L11.2759 10.2133L11.2757 10.2119C11.2453 10.0398 11.2584 9.86285 11.3137 9.69703C11.3682 9.53352 11.462 9.38596 11.5869 9.26733L14.2134 6.66164C14.2169 6.65817 14.2204 6.65476 14.224 6.6514C14.2325 6.64343 14.2386 6.63319 14.2415 6.62188C14.2445 6.61058 14.2441 6.59867 14.2405 6.58756C14.2369 6.57645 14.2303 6.56659 14.2213 6.55912C14.2123 6.55166 14.2014 6.54691 14.1898 6.54542L14.1803 6.5441L10.5379 6.00448C10.3628 5.98324 10.196 5.91739 10.0535 5.81316C9.91148 5.70923 9.79849 5.5707 9.72524 5.41083L8.07573 2.08068L8.07007 2.06888C8.06514 2.05823 8.05726 2.04921 8.04736 2.04288C8.03747 2.03656 8.02597 2.0332 8.01423 2.0332ZM8.97427 1.64177C8.88897 1.46097 8.75431 1.30788 8.58576 1.20019C8.41508 1.09115 8.21677 1.0332 8.01423 1.0332C7.81169 1.0332 7.61338 1.09115 7.4427 1.20019C7.27415 1.30788 7.13949 1.46097 7.05419 1.64177L5.40322 4.97486C5.4001 4.98116 5.39711 4.98752 5.39426 4.99395C5.39211 4.99879 5.38872 5.00299 5.38444 5.00613C5.38016 5.00926 5.37514 5.01121 5.36987 5.0118C5.36378 5.01247 5.3577 5.01326 5.35164 5.01415L1.71613 5.55275C1.51875 5.57185 1.33051 5.64588 1.17287 5.76663C1.00989 5.89147 0.886605 6.06089 0.817951 6.25436C0.749298 6.44784 0.73822 6.65707 0.78606 6.85672C0.833722 7.05562 0.937828 7.23651 1.08584 7.37763L3.74669 9.94494L3.75251 9.95047C3.75874 9.95629 3.76342 9.96357 3.76611 9.97166C3.76881 9.97975 3.76944 9.98839 3.76795 9.99678L3.76738 10L3.13332 13.7109L3.13316 13.7118C3.09897 13.9092 3.12077 14.1122 3.19612 14.2979C3.27158 14.4838 3.39772 14.6448 3.56018 14.7626C3.72263 14.8804 3.91489 14.9502 4.11507 14.9641C4.31495 14.978 4.51472 14.9356 4.69171 14.8417L4.6925 14.8413L7.96827 13.1101C7.98272 13.1037 7.99838 13.1004 8.01423 13.1004C8.03008 13.1004 8.04574 13.1037 8.0602 13.1101L11.336 14.8413L11.3368 14.8418C11.5138 14.9356 11.7135 14.978 11.9134 14.9641C12.1136 14.9502 12.3058 14.8804 12.4683 14.7626C12.6307 14.6448 12.7569 14.4838 12.8323 14.2979C12.9078 14.112 12.9295 13.9088 12.8952 13.7112L12.2609 10.0407L12.2605 10.0384C12.259 10.03 12.2596 10.0213 12.2623 10.0133C12.265 10.0052 12.2697 9.99789 12.2759 9.99206C12.2796 9.98865 12.2832 9.98518 12.2868 9.98166L14.9133 7.3759C15.0571 7.23918 15.1598 7.06483 15.2096 6.8726C15.2601 6.6776 15.2541 6.47226 15.1922 6.28056C15.1304 6.08886 15.0153 5.9187 14.8604 5.78998C14.7069 5.66243 14.5205 5.58077 14.3228 5.5543L10.6768 5.01415C10.6708 5.01326 10.6647 5.01247 10.6586 5.0118C10.6533 5.01121 10.6483 5.00926 10.644 5.00613C10.6397 5.00299 10.6364 4.99879 10.6342 4.99395C10.6313 4.98752 10.6284 4.98116 10.6252 4.97486L8.97427 1.64177Z"
+										fill="currentColor"
+									/>
+								</svg>
+
+								Select Store
+							</button>
+						{/if}
+					</div>
+				</div>
+			{/each}
+
+			{#if filteredStores.length === 0}
+				<p class="no-results">No stores found matching your search.</p>
+			{/if}
+		</div>
+	</div>
+</Drawer>
+
+<style>
+	.store-content {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	/* Search Section */
+	.search-section {
+		position: relative;
+	}
+
+	.search-input {
+		width: 100%;
+		padding: 12px 14px;
+		font-size: 0.9375rem;
+		border: 1px solid #d1d5db;
+		border-radius: 9999px;
+		background-color: #ffffff;
+		color: #3f3f3f;
+		box-sizing: border-box;
+		transition:
+			border-color 0.25s ease-in-out,
+			box-shadow 0.25s ease-in-out;
+	}
+
+	.search-input::placeholder {
+		color: #696969;
+	}
+
+	/* Action Buttons */
+	.action-buttons {
+		align-items: center;
+		display: flex;
+		gap: 16px;
+		justify-content: space-between;
+	}
+
+	.map-button,
+	.filter-button {
+		align-items: center;
+		background-color: #ffffff;
+		border: 1px solid #777777;
+		border-radius: 8px;
+		cursor: pointer;
+		display: flex;
+		font-size: 0.875rem;
+		font-weight: 500;
+		gap: 8px;
+		justify-content: center;
+		padding: 6px 16px;
+		transition: all 0.25s ease-in-out;
+
+		&:hover,
+		&:focus {
+			background-color: #f2f2f2;
+			border-color: #000000;
+		}
+	}
+
+	/* Store List */
+	.store-list {
+		border-block-start: 1px solid #cccccc;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		overflow-y: auto;
+		padding-block-start: 16px;
+	}
+
+	.store-card {
+		align-items: center;
+		background-color: #ffffff;
+		border: 1px solid #cccccc;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 16px;
+		transition: all 0.25s ease-in-out;
+	}
+
+	.store-card:hover {
+		background-color: #f9fafb;
+	}
+
+	.store-card.selected {
+		background-color: #ffffff;
+		border: 2px solid #000000;
+	}
+
+	.store-info {
+		align-items: start;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 100%;
+	}
+
+	.store-name {
+		font-size: 1rem;
+		font-weight: 600;
+		color: #3f3f3f;
+		margin: 0;
+	}
+
+	.store-address {
+		font-size: 0.875rem;
+		color: #696969;
+		margin: 0;
+	}
+
+	.store-details {
+		align-items: start;
+		display: flex;
+		flex-direction: row;
+		gap: 8px;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	.store-distance,
+	.store-hours {
+		color: #3f3f3f;
+		font-size: 0.875rem;
+		margin: 0;
+	}
+
+	.store-open-status {
+		color: #006618;
+		font-weight: bold;
+	}
+
+	.select-button {
+		align-items: center;
+		background-color: #ffffff;
+		border: 1px solid #cccccc;
+		border-radius: 9999px;
+		color: #000000;
+		cursor: pointer;
+		display: flex;
+		font-size: 0.875rem;
+		font-weight: 600;
+		gap: 8px;
+		padding: 6px 16px;
+		transition: all 0.25s ease-in-out;
+
+		&.selected {
+			border-color: #000000;
+		}
+	}
+
+	.select-button:hover {
+		background-color: #f2f2f2;
+		border-color: #000000;
+	}
+
+	.no-results {
+		text-align: center;
+		color: #6b7280;
+		font-size: 0.875rem;
+		padding: 24px;
+	}
+</style>
