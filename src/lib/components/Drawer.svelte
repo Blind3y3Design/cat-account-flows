@@ -12,6 +12,9 @@
 
 	let { open = $bindable(), title, subtitle, onclose, children, footer }: DrawerProps = $props();
 
+	let drawerElement: HTMLElement | undefined = $state();
+	let previousActiveElement: HTMLElement | null = $state(null);
+
 	function handleClose() {
 		if (onclose) {
 			onclose();
@@ -23,18 +26,80 @@
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape' && open) {
 			handleClose();
+			return;
+		}
+
+		if (event.key === 'Tab' && open && drawerElement) {
+			const focusableElements = drawerElement.querySelectorAll<HTMLElement>(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			);
+			const firstElement = focusableElements[0];
+			const lastElement = focusableElements[focusableElements.length - 1];
+
+			if (event.shiftKey) {
+				if (document.activeElement === firstElement) {
+					event.preventDefault();
+					lastElement?.focus();
+				}
+			} else {
+				if (document.activeElement === lastElement) {
+					event.preventDefault();
+					firstElement?.focus();
+				}
+			}
 		}
 	}
+
+	// Focus management when drawer opens
+	$effect(() => {
+		if (open) {
+			// Store the currently focused element to restore later
+			previousActiveElement = document.activeElement as HTMLElement;
+
+			// Move focus to the first focusable element in the drawer after a brief delay
+			// to allow the drawer to render
+			setTimeout(() => {
+				if (drawerElement) {
+					const firstFocusable = drawerElement.querySelector<HTMLElement>(
+						'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+					);
+					if (firstFocusable) {
+						firstFocusable.focus();
+					} else {
+						// If no focusable element, focus the drawer itself
+						drawerElement.focus();
+					}
+				}
+			}, 50);
+		} else if (previousActiveElement) {
+			// Restore focus to the previous element when drawer closes
+			previousActiveElement.focus();
+			previousActiveElement = null;
+		}
+	});
+
+	// Prevent body/html scroll when drawer is open
+	$effect(() => {
+		if (open) {
+			const style = document.createElement('style');
+			style.id = 'drawer-scroll-lock';
+			style.textContent = 'body, html { overflow: hidden !important; }';
+			document.head.appendChild(style);
+
+			return () => {
+				document.head.removeChild(style);
+			};
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
-<svelte:body class:drawer-open={open} />
 
 {#if open}
 	<div class="drawer-overlay" onclick={handleClose} role="presentation"></div>
 {/if}
 
-<aside class="drawer" class:open aria-hidden={!open}>
+<aside bind:this={drawerElement} class="drawer" class:open aria-hidden={!open} tabindex={-1}>
 	<header class="drawer-header">
 		<div class="header-content">
 			<h2 class="title">{title}</h2>
@@ -178,10 +243,5 @@
 		to {
 			opacity: 1;
 		}
-	}
-
-	/* Prevent body scroll when drawer is open */
-	:global(body.drawer-open) {
-		overflow: hidden;
 	}
 </style>
