@@ -62,6 +62,11 @@
 		// Cart functionality would go here
 		alert('Cart functionality would open here');
 	}
+
+	function handleSearch() {
+		// Search functionality would go here
+		alert('Search for: ' + searchQuery);
+	}
 </script>
 
 <nav class="top-nav">
@@ -134,6 +139,22 @@
 						bind:value={searchQuery}
 						placeholder="Search for part number or name"
 					/>
+					<button type="button" class="search-icon-button" onclick={handleSearch}>
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 15 15"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fill-rule="evenodd"
+								clip-rule="evenodd"
+								d="M10.1317 11.0741C9.06354 11.9357 7.70489 12.4515 6.22576 12.4515C2.78737 12.4515 0 9.66415 0 6.22576C0 2.78737 2.78737 0 6.22576 0C9.66415 0 12.4515 2.78737 12.4515 6.22576C12.4515 7.70472 11.9358 9.06324 11.0744 10.1313L14.4719 13.5288C14.7323 13.7892 14.7323 14.2113 14.4719 14.4716C14.2116 14.732 13.7895 14.732 13.5291 14.4716L10.1317 11.0741ZM1.33333 6.22576C1.33333 3.52375 3.52375 1.33333 6.22576 1.33333C8.92777 1.33333 11.1182 3.52375 11.1182 6.22576C11.1182 7.55341 10.5894 8.75754 9.73084 9.639C9.71434 9.65261 9.69833 9.66713 9.68289 9.68257C9.66744 9.69802 9.65291 9.71404 9.63929 9.73056C8.7578 10.5892 7.55355 11.1182 6.22576 11.1182C3.52375 11.1182 1.33333 8.92777 1.33333 6.22576Z"
+								fill="black"
+							/>
+						</svg>
+					</button>
 				</div>
 			</div>
 
@@ -296,18 +317,19 @@
 	}
 
 	.search-container {
-		display: flex;
-		align-items: stretch;
-		border: 1px solid #d1d5db;
+		align-items: center;
+		border: 1px solid #cccccc;
 		border-radius: 9999px;
+		display: flex;
 		overflow: hidden;
+		padding-inline-end: 8px;
 	}
 
 	.equipment-button {
 		align-items: center;
 		background-color: #ffffff;
 		border: none;
-		border-right: 1px solid #d1d5db;
+		border-right: 1px solid #cccccc;
 		color: #111827;
 		cursor: pointer;
 		display: flex;
@@ -324,9 +346,10 @@
 	}
 
 	.equipment-thumbnail {
-		width: 24px;
-		height: 24px;
-		border-radius: 4px;
+		width: 32px;
+		height: 32px;
+		border: 1px solid #cccccc;
+		border-radius: 50%;
 		object-fit: cover;
 		flex-shrink: 0;
 	}
@@ -348,6 +371,24 @@
 
 	.search-input::placeholder {
 		color: #9ca3af;
+	}
+
+	.search-icon-button {
+		background-color: #ffcd11;
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		flex-shrink: 0;
+		transition: background-color 0.2s ease;
+	}
+
+	.search-icon-button:hover {
+		background-color: #ffe672;
 	}
 
 	.top-right {

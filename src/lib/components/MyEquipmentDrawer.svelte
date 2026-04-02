@@ -232,12 +232,10 @@
 	}
 
 	.selected-image {
-		width: 80px;
-		height: 80px;
 		flex-shrink: 0;
-		border-radius: 6px;
+		height: 80px;
 		overflow: hidden;
-		background-color: #ffffff;
+		width: 80px;
 	}
 
 	.selected-image img {
@@ -389,18 +387,16 @@
 	}
 
 	.card-image {
-		width: 50px;
-		height: 50px;
 		flex-shrink: 0;
-		border-radius: 4px;
+		height: 50px;
 		overflow: hidden;
-		background-color: #f3f4f6;
+		width: 50px;
 	}
 
 	.card-image img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: contain;
 	}
 
 	.card-info {
