@@ -4,15 +4,15 @@
 	interface StoreCardProps {
 		store: StoreLocation;
 		isSelected: boolean;
-		onselect?: (store: StoreLocation) => void;
+		onselect: (store: StoreLocation) => void;
 	}
 
 	let { store, isSelected, onselect }: StoreCardProps = $props();
 
-	function handleSelect() {
-		if (onselect) {
-			onselect(store);
-		}
+	function handleSelect(event: MouseEvent) {
+		event.preventDefault();
+		event.stopPropagation();
+		onselect(store);
 	}
 </script>
 

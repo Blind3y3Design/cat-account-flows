@@ -12,6 +12,15 @@
 
 	let { open = $bindable(), title, subtitle, onclose, children, footer }: DrawerProps = $props();
 
+	// Disable body scroll when drawer is open
+	$effect(() => {
+		if (open) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+		}
+	});
+
 	function handleClose() {
 		if (onclose) {
 			onclose();
@@ -167,8 +176,6 @@
 	}
 
 	.drawer-footer {
-		padding: 16px;
-		border-top: 1px solid #cccccc;
 		flex-shrink: 0;
 	}
 

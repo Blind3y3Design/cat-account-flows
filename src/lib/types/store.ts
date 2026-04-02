@@ -5,6 +5,7 @@ export interface StoreLocation {
 	id: string;
 	name: string;
 	address: string;
+	dealerNetwork: string;
 	city: string;
 	state: string;
 	zipCode: string;
