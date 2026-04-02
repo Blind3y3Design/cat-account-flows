@@ -3,14 +3,7 @@ import type { Equipment } from '$lib/types/equipment';
 import { currentUser } from './auth';
 
 /**
- * Selected equipment state
- */
-interface SelectedEquipmentState {
-	selectedEquipmentId: string | null;
-}
-
-/**
- * Creates the selected equipment store
+ * Selected equipment state using Svelte 4 stores for Node.js compatibility
  */
 function createSelectedEquipmentStore() {
 	const { subscribe, set, update } = writable<SelectedEquipmentState>({
@@ -55,7 +48,7 @@ function createSelectedEquipmentStore() {
 		 * Get selected equipment from user profile
 		 */
 		getSelectedEquipment: (): Equipment | null => {
-			const state = get({ subscribe });
+			const state = get(selectedEquipmentStore);
 			if (!state.selectedEquipmentId) return null;
 
 			const user = get(currentUser);
@@ -64,6 +57,13 @@ function createSelectedEquipmentStore() {
 			return user.equipment.find((e) => e.id === state.selectedEquipmentId) || null;
 		}
 	};
+}
+
+/**
+ * Selected equipment state interface
+ */
+interface SelectedEquipmentState {
+	selectedEquipmentId: string | null;
 }
 
 // Export singleton instance

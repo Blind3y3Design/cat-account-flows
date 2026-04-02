@@ -1,12 +1,12 @@
 import { writable, derived, get } from 'svelte/store';
 import type { Equipment } from '$lib/types/equipment';
 import { createEquipment, DEFAULT_THUMBNAIL, MOCK_EQUIPMENT } from '$lib/types/equipment';
-import { currentUser } from './auth';
+import { currentUser, auth } from './auth';
 import { browser } from '$app/environment';
 
 /**
  * Guest equipment store - persists to localStorage
- * Used when user is not logged in
+ * Uses Svelte 4 stores for Node.js compatibility
  */
 function createGuestEquipmentStore() {
 	const store = writable<Equipment[]>([]);

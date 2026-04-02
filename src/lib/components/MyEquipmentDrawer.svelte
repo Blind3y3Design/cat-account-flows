@@ -71,7 +71,7 @@
 				<!-- Selected Equipment Display -->
 				<div class="selected-equipment">
 					<div class="selected-image">
-						<img
+						<enhanced:img
 							src={selectedEquipmentFromStore.thumbnail}
 							alt={selectedEquipmentFromStore.modelName}
 						/>
@@ -117,7 +117,7 @@
 						onclick={() => selectEquipment(equipment)}
 					>
 						<div class="card-image">
-							<img src={equipment.thumbnail} alt={equipment.modelName} />
+							<enhanced:img src={equipment.thumbnail} alt={equipment.modelName} />
 						</div>
 						<div class="card-info">
 							<span class="card-model">{equipment.modelName}</span>

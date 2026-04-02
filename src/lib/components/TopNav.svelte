@@ -77,9 +77,9 @@
 				<!-- Logo -->
 				<a href="/" class="logo">
 					{#if showDealerLogo}
-						<img src={dealerLogo} alt="Dealer Logo" />
+						<enhanced:img src={dealerLogo} alt="Dealer Logo" class="logo-img" />
 					{:else}
-						<img src={corpLogo} alt="Caterpillar Logo" />
+						<enhanced:img src={corpLogo} alt="Caterpillar Logo" class="logo-img" />
 					{/if}
 				</a>
 
@@ -117,7 +117,11 @@
 				<div class="search-container">
 					<button class="equipment-button" type="button" onclick={handleEquipmentButton}>
 						{#if equipmentThumbnail}
-							<img src={equipmentThumbnail} alt="" class="equipment-thumbnail" />
+							<enhanced:img
+								src={equipmentThumbnail}
+								alt="Equipment thumbnail"
+								class="equipment-thumbnail"
+							/>
 						{:else}
 							<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
 								<path
@@ -139,7 +143,12 @@
 						bind:value={searchQuery}
 						placeholder="Search for part number or name"
 					/>
-					<button type="button" class="search-icon-button" onclick={handleSearch}>
+					<button
+						type="button"
+						class="search-icon-button"
+						aria-label="Search"
+						onclick={handleSearch}
+					>
 						<svg
 							width="15"
 							height="15"
@@ -216,7 +225,7 @@
 	<div class="nav-bottom">
 		<div class="nav-inner">
 			<div class="nav-links">
-				<a href="" class="nav-link">
+				<button type="button" class="nav-link">
 					Shop parts
 					<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
 						<path
@@ -226,11 +235,11 @@
 							fill="currentColor"
 						/>
 					</svg>
-				</a>
-				<a href="" class="nav-link">SIS</a>
-				<a href="" class="nav-link">Parts Diagram</a>
-				<a href="" class="nav-link">Quick Order</a>
-				<a href="" class="nav-link">Specials</a>
+				</button>
+				<button type="button" class="nav-link">SIS</button>
+				<button type="button" class="nav-link">Parts Diagram</button>
+				<button type="button" class="nav-link">Quick Order</button>
+				<button type="button" class="nav-link">Specials</button>
 			</div>
 			<div class="nav-right">
 				<p class="contact-text">Need Help?</p>
@@ -281,6 +290,12 @@
 		align-items: center;
 		gap: 8px;
 		text-decoration: none;
+	}
+
+	.logo-img {
+		height: 32px;
+		width: auto;
+		object-fit: contain;
 	}
 
 	.store-button {
@@ -461,8 +476,11 @@
 
 	.nav-link {
 		align-items: center;
+		background: none;
+		border: none;
 		border-bottom: 2px solid transparent;
 		color: #374151;
+		cursor: pointer;
 		display: flex;
 		font-size: 0.875rem;
 		font-weight: 500;

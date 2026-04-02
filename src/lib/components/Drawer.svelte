@@ -12,15 +12,6 @@
 
 	let { open = $bindable(), title, subtitle, onclose, children, footer }: DrawerProps = $props();
 
-	// Disable body scroll when drawer is open
-	$effect(() => {
-		if (open) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = '';
-		}
-	});
-
 	function handleClose() {
 		if (onclose) {
 			onclose();
@@ -37,6 +28,7 @@
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
+<svelte:body class:drawer-open={open} />
 
 {#if open}
 	<div class="drawer-overlay" onclick={handleClose} role="presentation"></div>
@@ -186,5 +178,10 @@
 		to {
 			opacity: 1;
 		}
+	}
+
+	/* Prevent body scroll when drawer is open */
+	:global(body.drawer-open) {
+		overflow: hidden;
 	}
 </style>

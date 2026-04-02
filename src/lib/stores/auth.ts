@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import type { UserProfile, SignInCredentials } from '$lib/types/user';
 import { DUMMY_EQUIPMENT } from '$lib/types/equipment';
 import { DUMMY_STORES } from '$lib/types/store';
@@ -27,12 +27,20 @@ function createInitialState(): AuthState {
 
 /**
  * Auth store with sign-in/sign-out functionality
+ * Uses Svelte 4 stores for Node.js compatibility while remaining compatible with Svelte 5
  */
 function createAuthStore() {
 	const { subscribe, set, update } = writable<AuthState>(createInitialState());
 
 	return {
 		subscribe,
+
+		/**
+		 * Get the current user synchronously
+		 */
+		get user() {
+			return get(auth).user;
+		},
 
 		/**
 		 * Attempt to sign in with username and password
