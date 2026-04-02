@@ -65,9 +65,6 @@
 					);
 					if (firstFocusable) {
 						firstFocusable.focus();
-					} else {
-						// If no focusable element, focus the drawer itself
-						drawerElement.focus();
 					}
 				}
 			}, 50);
@@ -99,7 +96,7 @@
 	<div class="drawer-overlay" onclick={handleClose} role="presentation"></div>
 {/if}
 
-<aside bind:this={drawerElement} class="drawer" class:open aria-hidden={!open} tabindex={-1}>
+<aside bind:this={drawerElement} class="drawer" class:open aria-hidden={!open}>
 	<header class="drawer-header">
 		<div class="header-content">
 			<h2 class="title">{title}</h2>
